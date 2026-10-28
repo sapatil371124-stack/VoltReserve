@@ -1,0 +1,38 @@
+# Compiled Java artifacts
+target/
+backend/target/
+*.class
+*.jar
+*.war
+
+# Node dependencies & frontend builds
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+
+# Logs and databases
+*.log
+*.sqlite
+.mysql-data/
+*.sql.gz
+
+# Environment and secrets files (do not commit passwords/keys)
+.env
+.env.local
+.env.*.local
+frontend/.env
+backend/.env
+!*.env.example
+
+# IDE configuration
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS temporary files
+Thumbs.db
+.DS_Store

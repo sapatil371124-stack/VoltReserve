@@ -1,0 +1,53 @@
+# Render Blueprint Specification for VoltReserve Production Deployment
+# https://render.com/docs/blueprint-spec
+
+services:
+  # ----------------------------------------------------
+  # 1. Spring Boot Backend Web Service (Docker)
+  # ----------------------------------------------------
+  - type: web
+    name: voltreserve-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+        # e.g., jdbc:mysql://your-mysql-host:3306/voltreserve?useSSL=true&allowPublicKeyRetrieval=true
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION_MS
+        value: "86400000"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://voltreserve-frontend.onrender.com,https://*.vercel.app,http://localhost:5173"
+
+  # ----------------------------------------------------
+  # 2. React + Vite Frontend (Static Site)
+  # ----------------------------------------------------
+  - type: web
+    name: voltreserve-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      # Single-Page Application (SPA) Client Routing Fallback
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://voltreserve-backend.onrender.com/api
+      - key: VITE_MAP_TILE_URL
+        value: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+      - key: VITE_ROUTING_API_KEY
+        sync: false
